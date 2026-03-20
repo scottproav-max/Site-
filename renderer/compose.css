@@ -1,0 +1,204 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #1c1c1e;
+  --bg2:    #2c2c2e;
+  --bg3:    #3a3a3c;
+  --border: rgba(255,255,255,0.08);
+  --text:   #f5f5f7;
+  --text2:  #aeaeb2;
+  --text3:  #636366;
+  --accent: #0a84ff;
+  --danger: #ff453a;
+  --font:   -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Titlebar ─────────────────────────────────────────────────────────────── */
+#titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  -webkit-app-region: drag;
+  border-bottom: 1px solid var(--border);
+}
+#titlebar * { -webkit-app-region: no-drag; }
+
+#window-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#titlebar-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+#btn-send {
+  background: var(--accent);
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+#btn-send:hover { opacity: 0.85; }
+
+#btn-discard {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text3);
+  font-size: 13px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#btn-discard:hover { background: var(--bg3); color: var(--text); }
+
+/* ── Fields ──────────────────────────────────────────────────────────────── */
+#fields {
+  border-bottom: 1px solid var(--border);
+  padding: 4px 0;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px;
+}
+.field-row:last-child { border-bottom: none; }
+
+.field-row label {
+  font-size: 13px;
+  color: var(--text3);
+  width: 55px;
+  flex-shrink: 0;
+}
+
+.field-row input, .field-row select {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 13px;
+  padding: 9px 0;
+  font-family: var(--font);
+}
+
+.field-row select {
+  appearance: none;
+  cursor: pointer;
+  color: var(--text2);
+}
+
+#field-extras {
+  display: flex;
+  gap: 6px;
+  padding: 6px 14px;
+}
+
+.chip {
+  background: var(--bg3);
+  border: none;
+  border-radius: 12px;
+  color: var(--text3);
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.chip:hover { background: var(--border); color: var(--text2); }
+
+/* ── Formatting toolbar ──────────────────────────────────────────────────── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+#toolbar button {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  min-width: 28px;
+  text-align: center;
+}
+#toolbar button:hover { background: var(--bg3); color: var(--text); }
+#toolbar button.active { background: var(--bg3); color: var(--accent); }
+
+.sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* ── Body editor ─────────────────────────────────────────────────────────── */
+#body-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+}
+
+#body-area::-webkit-scrollbar { width: 4px; }
+#body-area::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+#editor {
+  min-height: 100%;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text3);
+  pointer-events: none;
+}
+
+/* ── Status bar ──────────────────────────────────────────────────────────── */
+#status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+#status-msg.error { color: #ff453a; }
+#status-msg.success { color: #30d158; }
