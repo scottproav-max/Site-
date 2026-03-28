@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;" />
+  <title>MailApp</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <span class="app-title">MailApp</span>
+      <button id="btn-compose" title="New Message (⌘N)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 17l1.5-4.5L14 3l3 3-9.5 9.5L3 17z"/>
+          <path d="M12 5l3 3"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Account list -->
+    <div id="accounts-section">
+      <div class="section-header">
+        <span>Accounts</span>
+        <button id="btn-add-account" title="Add account">+</button>
+      </div>
+      <ul id="account-list"></ul>
+    </div>
+
+    <!-- Folder list -->
+    <div id="folders-section">
+      <div class="section-header"><span>Folders</span></div>
+      <ul id="folder-list"></ul>
+    </div>
+
+    <div id="sidebar-footer">
+      <button id="btn-settings" title="Settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="10" cy="10" r="2.5"/>
+          <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Email list ──────────────────────────────────────────────── -->
+  <section id="email-list-panel">
+    <div id="email-list-header">
+      <span id="current-folder-label">Inbox</span>
+      <button id="btn-refresh" title="Refresh (⌘R)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 10a6 6 0 1 1 1.5 4"/>
+          <path d="M4 14v-4h4"/>
+        </svg>
+      </button>
+    </div>
+    <div id="search-bar">
+      <input id="search-input" type="text" placeholder="Search…" />
+    </div>
+    <ul id="email-list">
+      <li class="empty-state">Select an account to load emails</li>
+    </ul>
+  </section>
+
+  <!-- ── Email reader ────────────────────────────────────────────── -->
+  <main id="email-reader">
+    <div id="no-selection">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <rect x="8" y="12" width="48" height="40" rx="3"/>
+        <path d="M8 20l24 16 24-16"/>
+      </svg>
+      <p>No message selected</p>
+    </div>
+
+    <div id="email-view" class="hidden">
+      <div id="email-toolbar">
+        <button id="btn-reply" title="Reply">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M8 4L3 9l5 5"/>
+            <path d="M3 9h9a5 5 0 0 1 5 5v2"/>
+          </svg>
+          Reply
+        </button>
+        <button id="btn-reply-all" title="Reply All">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 4L1 9l5 5"/>
+            <path d="M10 4L5 9"/>
+            <path d="M1 9h11a5 5 0 0 1 5 5v2"/>
+          </svg>
+          Reply All
+        </button>
+        <button id="btn-forward" title="Forward">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 4l5 5-5 5"/>
+            <path d="M17 9H6a5 5 0 0 0-5 5v2"/>
+          </svg>
+          Forward
+        </button>
+        <div class="toolbar-spacer"></div>
+        <button id="btn-delete-email" class="danger" title="Delete">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 6h12M8 6V4h4v2M7 9v6M13 9v6M5 6l1 11h8l1-11"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="email-meta">
+        <div id="avatar-wrap">
+          <div id="sender-avatar"></div>
+        </div>
+        <div id="email-headers">
+          <div id="email-subject"></div>
+          <div id="email-from"></div>
+          <div id="email-to-row"><span class="label">To:</span><span id="email-to"></span></div>
+          <div id="email-cc-row" class="hidden"><span class="label">Cc:</span><span id="email-cc"></span></div>
+          <div id="email-date"></div>
+        </div>
+      </div>
+
+      <div id="email-body-wrap">
+        <webview id="email-webview" src="about:blank" partition="email-sandbox"
+          disablewebsecurity="false" nodeintegration="false"></webview>
+        <div id="email-text-body" class="hidden"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Account Modal ──────────────────────────────────────────── -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-account" class="modal hidden">
+      <div class="modal-header">
+        <h2 id="modal-account-title">Add Account</h2>
+        <button class="modal-close" data-modal="modal-account">✕</button>
+      </div>
+      <form id="form-account" autocomplete="off">
+        <label>Display Name
+          <input type="text" name="name" placeholder="Your Name" required />
+        </label>
+        <label>Email Address
+          <input type="email" name="email" placeholder="you@example.com" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" required />
+        </label>
+        <fieldset>
+          <legend>Incoming (IMAP)</legend>
+          <label>Host <input type="text" name="imapHost" placeholder="imap.example.com" required /></label>
+          <div class="row-2">
+            <label>Port <input type="number" name="imapPort" value="993" min="1" max="65535" /></label>
+            <label class="toggle-label">TLS
+              <input type="checkbox" name="imapTls" checked />
+            </label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Outgoing (SMTP)</legend>
+          <label>Host <input type="text" name="smtpHost" placeholder="smtp.example.com" required /></label>
+          <div class="row-2">
+            <label>Port <input type="number" name="smtpPort" value="587" min="1" max="65535" /></label>
+            <label class="toggle-label">SSL
+              <input type="checkbox" name="smtpTls" />
+            </label>
+          </div>
+        </fieldset>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal="modal-account">Cancel</button>
+          <button type="submit" class="btn-primary" id="btn-save-account">Save Account</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal hidden">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="modal-close" data-modal="modal-settings">✕</button>
+      </div>
+      <div id="settings-body">
+        <label>Font Size
+          <input type="range" id="setting-font-size" min="12" max="20" step="1" value="14" />
+          <span id="font-size-val">14</span>px
+        </label>
+        <label>Emails to fetch per load
+          <input type="number" id="setting-fetch-limit" min="10" max="200" step="10" value="50" />
+        </label>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-modal="modal-settings">Close</button>
+          <button class="btn-primary" id="btn-save-settings">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Spinner overlay ────────────────────────────────────────── -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+    <span id="loading-label">Loading…</span>
+  </div>
+
+  <!-- ── Toast ──────────────────────────────────────────────────── -->
+  <div id="toast" class="hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
